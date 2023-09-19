@@ -5,8 +5,9 @@ import "time"
 type User interface {
 	ID() string
 	Username() string
+	Password(string) bool
 	Email() string
 	Phone() string
 	CreatedAt() time.Time
-	ValidPassword(string) bool
+	UpdatedAt() time.Time
 }
