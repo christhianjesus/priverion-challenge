@@ -1,4 +1,4 @@
-module christhianjesus/priverion-challenge
+module github.com/christhianjesus/priverion-challenge
 
 go 1.20
 
