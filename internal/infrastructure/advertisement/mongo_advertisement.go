@@ -1,4 +1,4 @@
-package infrastructure
+package advertisement
 
 import (
 	"time"
@@ -7,12 +7,12 @@ import (
 )
 
 type encapsulatedMongoAdvertisement struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	UserID    string             `bson:"user_id,omitempty"`
-	Title     string             `bson:"title,omitempty"`
-	Body      string             `bson:"body,omitempty"`
-	CreatedAt time.Time          `bson:"created_at,omitempty"`
-	UpdatedAt time.Time          `bson:"updated_at,omitempty"`
+	ID        primitive.ObjectID `bson:"_id" json:"id"`
+	UserID    string             `bson:"user_id,omitempty" json:"user_id"`
+	Title     string             `bson:"title,omitempty" json:"title"`
+	Body      string             `bson:"body,omitempty" json:"body"`
+	CreatedAt time.Time          `bson:"created_at,omitempty" json:"created_at"`
+	UpdatedAt time.Time          `bson:"updated_at,omitempty" json:"updated_at"`
 }
 
 type mongoAdvertisement struct {
