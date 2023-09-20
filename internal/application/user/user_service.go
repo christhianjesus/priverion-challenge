@@ -18,10 +18,6 @@ type userService struct {
 }
 
 func (s *userService) CreateUser(ctx context.Context, data user.User) error {
-	if err := user.ValidateUser(data); err != nil {
-		return err
-	}
-
 	data.SetPassword(encryptSHA256(data.Password()))
 
 	return s.repo.Create(ctx, data)
