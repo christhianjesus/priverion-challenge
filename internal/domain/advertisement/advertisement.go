@@ -10,3 +10,7 @@ type Advertisement interface {
 	CreatedAt() time.Time
 	UpdatedAt() time.Time
 }
+
+func ValidateAdvertisement(advertisement Advertisement) error {
+	return nil
+}
