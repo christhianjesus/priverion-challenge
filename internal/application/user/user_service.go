@@ -43,11 +43,11 @@ func (s *userService) GetUser(ctx context.Context, userID string) (user.User, er
 func (s *userService) UpdateUser(ctx context.Context, data user.User) error {
 	data.SetPassword(encryptSHA256(data.Password()))
 
-	return s.repo.UpdateUser(ctx, data)
+	return s.repo.Update(ctx, data)
 }
 
 func (s *userService) DeleteUser(ctx context.Context, userID string) error {
-	return s.repo.DeleteUser(ctx, userID)
+	return s.repo.Delete(ctx, userID)
 }
 
 func encryptSHA256(data string) string {
