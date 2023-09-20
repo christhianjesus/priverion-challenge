@@ -3,13 +3,16 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	appUser "github.com/christhianjesus/priverion-challenge/internal/application/user"
 	"github.com/christhianjesus/priverion-challenge/internal/infrastructure/advertisement"
 	"github.com/christhianjesus/priverion-challenge/internal/infrastructure/user"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -41,14 +44,50 @@ func main() {
 	r.POST("/login", userHandler.AuthUser)
 	r.POST("/register", userHandler.CreateUser)
 
-	r.GET("/user/:user", userHandler.GetUser)
-	r.PATCH("/user/:user", userHandler.UpdateUser)
-	r.DELETE("/user/:user", userHandler.DeleteUser)
+	authorized := r.Group("/")
 
-	r.GET("/advertisement/", advertisementHandler.GetAll)
-	r.POST("/advertisement/", advertisementHandler.Create)
-	r.GET("/advertisement/:advertisement", advertisementHandler.GetOne)
-	r.PATCH("/advertisement/:advertisement", advertisementHandler.Update)
-	r.DELETE("/advertisement/:advertisement", advertisementHandler.Delete)
+	authorized.Use(JWT())
+	{
+		authorized.GET("/user/:user", userHandler.GetUser)
+		authorized.PATCH("/user/:user", userHandler.UpdateUser)
+		authorized.DELETE("/user/:user", userHandler.DeleteUser)
+
+		authorized.GET("/advertisement/", advertisementHandler.GetAll)
+		authorized.POST("/advertisement/", advertisementHandler.Create)
+		authorized.GET("/advertisement/:advertisement", advertisementHandler.GetOne)
+		authorized.PATCH("/advertisement/:advertisement", advertisementHandler.Update)
+		authorized.DELETE("/advertisement/:advertisement", advertisementHandler.Delete)
+	}
+
 	r.Run()
+}
+
+func JWT() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		h := c.GetHeader("Authorization")
+		if strings.HasPrefix(h, "Bearer ") {
+			tokenString := strings.Replace(h, "Bearer ", "", 1)
+
+			token, err := jwt.ParseWithClaims(tokenString, &user.JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+				return []byte("secret"), nil
+			})
+			if err != nil {
+				c.AbortWithStatus(http.StatusInternalServerError)
+				return
+			}
+
+			if claims, ok := token.Claims.(*user.JwtCustomClaims); ok && token.Valid {
+				// c.MustGet(gin.AuthUserKey).
+				c.Set(gin.AuthUserKey, claims.Username)
+			} else {
+				c.AbortWithStatus(http.StatusUnauthorized)
+				return
+			}
+		} else {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		return
+	}
 }

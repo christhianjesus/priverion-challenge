@@ -47,6 +47,7 @@ func (h *advertisementHandler) Create(c *gin.Context) {
 	advertisement.e.ID = primitive.NewObjectIDFromTimestamp(currentTime)
 	advertisement.e.CreatedAt = currentTime
 	advertisement.e.UpdatedAt = currentTime
+	advertisement.e.UserID = c.MustGet(gin.AuthUserKey).(string)
 
 	if err := h.ar.Create(ctx, &advertisement); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
